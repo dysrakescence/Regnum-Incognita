@@ -1,3 +1,54 @@
-[gd_scene format=3 uid="uid://deroay2xqpsd"]
+[gd_scene load_steps=6 format=3 uid="uid://deroay2xqpsd"]
+
+[ext_resource type="Texture2D" uid="uid://dwejihruxluv5" path="res://icon.svg" id="1_ihr7n"]
+
+[sub_resource type="GDScript" id="GDScript_4g8a4"]
+script/source = "extends CharacterBody2D
+
+const SPEED = 300
+
+func _physics_process(delta):
+	velocity = Input.get_vector(\"left\", \"right\", \"up\", \"down\") * SPEED
+	velocity.y /= 2
+	move_and_slide()
+"
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2ohbr"]
+radius = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_sftlu"]
+custom_solver_bias = 1.0
+radius = 64.0
+
+[sub_resource type="TileSet" id="TileSet_1wg6x"]
+tile_shape = 3
+tile_size = Vector2i(64, 37)
 
 [node name="Node2D" type="Node2D"]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+script = SubResource("GDScript_4g8a4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("CircleShape2D_2ohbr")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+texture = ExtResource("1_ihr7n")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 16.0
+
+[node name="Dummy" type="CharacterBody2D" parent="."]
+position = Vector2(256, 256)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy"]
+shape = SubResource("CircleShape2D_sftlu")
+
+[node name="Sprite2D" type="Sprite2D" parent="Dummy"]
+modulate = Color(1, 0.533333, 0.533333, 1)
+texture = ExtResource("1_ihr7n")
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = SubResource("TileSet_1wg6x")
+format = 2
