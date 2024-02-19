@@ -1,6 +1,44 @@
-[gd_scene load_steps=6 format=3 uid="uid://deroay2xqpsd"]
+[gd_scene load_steps=8 format=3 uid="uid://deroay2xqpsd"]
 
 [ext_resource type="Texture2D" uid="uid://dwejihruxluv5" path="res://icon.svg" id="1_ihr7n"]
+[ext_resource type="Texture2D" uid="uid://bwqn6xx3faqf1" path="res://tiles/highlight-tile.png" id="2_3nqja"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_mnhi2"]
+texture = ExtResource("2_3nqja")
+texture_region_size = Vector2i(64, 37)
+0:0/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+2:1/0/terrain_set = 0
+2:1/0/terrain = 0
+2:1/0/terrains_peering_bit/right_side = 0
+2:1/0/terrains_peering_bit/bottom_right_side = 0
+2:1/0/terrains_peering_bit/bottom_right_corner = 0
+2:1/0/terrains_peering_bit/bottom_corner = 0
+3:2/0 = 0
+3:2/0/terrain_set = 0
+3:2/0/terrain = 0
+3:2/0/terrains_peering_bit/right_side = 0
+3:2/0/terrains_peering_bit/bottom_right_side = 0
+3:2/0/terrains_peering_bit/bottom_right_corner = 0
+3:2/0/terrains_peering_bit/bottom_corner = 0
+3:2/0/terrains_peering_bit/bottom_left_side = 0
+3:2/0/terrains_peering_bit/bottom_left_corner = 0
+3:2/0/terrains_peering_bit/left_side = 0
+3:2/0/terrains_peering_bit/top_left_side = 0
+3:2/0/terrains_peering_bit/top_left_corner = 0
+3:2/0/terrains_peering_bit/top_corner = 0
+3:2/0/terrains_peering_bit/top_right_side = 0
+3:2/0/terrains_peering_bit/top_right_corner = 0
+1:2/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_1wg6x"]
+tile_shape = 3
+tile_size = Vector2i(64, 37)
+terrain_set_0/mode = 0
+terrain_set_0/terrain_0/name = "ground"
+terrain_set_0/terrain_0/color = Color(0.501961, 0.345098, 0.25098, 1)
+sources/3 = SubResource("TileSetAtlasSource_mnhi2")
 
 [sub_resource type="GDScript" id="GDScript_4g8a4"]
 script/source = "extends CharacterBody2D
@@ -20,11 +58,12 @@ radius = 64.0
 custom_solver_bias = 1.0
 radius = 64.0
 
-[sub_resource type="TileSet" id="TileSet_1wg6x"]
-tile_shape = 3
-tile_size = Vector2i(64, 37)
-
 [node name="Node2D" type="Node2D"]
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = SubResource("TileSet_1wg6x")
+format = 2
+layer_0/tile_data = PackedInt32Array(-196610, 65539, 1, -196609, 65539, 1, -131074, 65539, 1, -131075, 65539, 1, -196611, 65539, 1, -262147, 65539, 1, -327682, 3, 0, -262146, 65539, 1, -262145, 65539, 1, -327681, 3, 0, -262144, 65539, 1, -131073, 65539, 1, -131072, 65539, 1, -327680, 65539, 1, -393216, 3, 0, -458752, 3, 0, -393215, 3, 0, -262143, 131075, 1, -196608, 65539, 1, -262148, 65539, 1, -393217, 3, 0, -65537, 65539, 1, -2, 65539, 1, -3, 65539, 1, -65539, 65539, 1, -131076, 65539, 1, -196612, 65539, 1, -196607, 196611, 2, -131071, 131075, 1, -65536, 131075, 1, -1, 65539, 1, -65538, 65539, 1, -262142, 196611, 2, -131070, 196611, 2, -196606, 196611, 2, -65535, 196611, 2, -65534, 196611, 2, -131069, 196611, 2, -196605, 196611, 2, -262141, 196611, 2, -131068, 196611, 2, -65533, 196611, 2, 3, 196611, 2, 2, 196611, 2, 1, 196611, 2, 4, 196611, 2, -65532, 196611, 2, 65539, 196611, 2, 65538, 196611, 2, 65537, 196611, 2, 131074, 196611, 2, 131075, 196611, 2, -327679, 131075, 1, -327678, 196611, 2, -393213, 65539, 2, -327677, 65539, 2, -327676, 65539, 2, -262140, 65539, 2, -262139, 65539, 2, -196604, 65539, 2, -196603, 65539, 2, -131067, 65539, 2, -65531, 65539, 2, 6, 65539, 2, 65541, 65539, 2, 131077, 65539, 2, 196612, 65539, 2, 196611, 65539, 2, 5, 65539, 2, 65540, 65539, 2, 131076, 65539, 2, 65534, 65539, 1, 65535, 65539, 1, 0, 65539, 1, -393214, 131075, 1)
 
 [node name="Player" type="CharacterBody2D" parent="."]
 script = SubResource("GDScript_4g8a4")
@@ -48,7 +87,3 @@ shape = SubResource("CircleShape2D_sftlu")
 [node name="Sprite2D" type="Sprite2D" parent="Dummy"]
 modulate = Color(1, 0.533333, 0.533333, 1)
 texture = ExtResource("1_ihr7n")
-
-[node name="TileMap" type="TileMap" parent="."]
-tile_set = SubResource("TileSet_1wg6x")
-format = 2
