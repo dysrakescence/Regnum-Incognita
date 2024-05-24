@@ -11,10 +11,4 @@ An innocent civilian from another planet was accused of murder. Their lawyer con
 
 ## Build
 
-Install Nim either from the official website or your package manager, then in command line, do
-```
-nimble install windy
-nimble install boxy
-nim c -d:release main.nim
-```
-this creates an executable that you should then be able to run.
+get Godot and then export lol
