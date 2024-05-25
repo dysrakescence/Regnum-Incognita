@@ -1,4 +1,19 @@
-[gd_scene load_steps=21 format=3 uid="uid://cufu55cw77ykl"]
+[gd_scene load_steps=27 format=3 uid="uid://cufu55cw77ykl"]
+
+[sub_resource type="GDScript" id="GDScript_ovjqu"]
+resource_name = "camera"
+script/source = "extends Camera3D
+
+var target : Node3D
+
+func _ready():
+	target = %Player
+
+func _process(delta):
+	position.x = lerp(position.x, target.position.x, delta*5)
+	position.y = lerp(position.y, target.position.y + 6, delta*5)
+	position.z = lerp(position.z, target.position.z + 4, delta*5)
+"
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_am0xg"]
 
@@ -13,33 +28,37 @@ size = Vector2(16, 16)
 resource_name = "player"
 script/source = "extends CharacterBody3D
 
-
-const SPEED = 5.0
-const JUMP_VELOCITY = 4.5
-
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(\"physics/3d/default_gravity\")
 
+const MAX_MOVE_SPEED = 5
+const MAX_ROTATE_SPEED = .05
+
+var move_speed = 0
+var rotate_speed = 0
+var movement = 0
+var rotate = 0
+var direction = Vector2.ZERO
 
 func _physics_process(delta):
-	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
-
-	# Handle jump.
-	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir = Input.get_vector(\"ui_left\", \"ui_right\", \"ui_up\", \"ui_down\")
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
+#get input
+	movement = Input.get_axis(\"player_up\", \"player_down\")
+	rotate = Input.get_axis(\"player_right\", \"player_left\")
+#movement
+	if abs(move_speed) < MAX_MOVE_SPEED:
+		move_speed += movement * delta * 40
+	direction = Vector2.from_angle(rotation.y)
+	velocity.x = move_speed * direction.y
+	velocity.z = move_speed * direction.x
+#rotation
+	if abs(rotate_speed) < MAX_ROTATE_SPEED:
+		rotate_speed += rotate * delta / 5
+	rotation.y += rotate_speed
+#resistence
+	move_speed = move_toward(move_speed, 0, delta * 25)
+	rotate_speed = move_toward(rotate_speed, 0, delta / 8)
 
 	move_and_slide()
 "
@@ -70,7 +89,18 @@ height = 0.6
 radius = 0.4
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q62pv"]
+diffuse_mode = 3
 albedo_color = Color(0.996078, 0.862745, 0, 1)
+emission_energy_multiplier = 11.33
+clearcoat_roughness = 1.0
+anisotropy = -0.95
+ao_light_affect = 1.0
+ao_on_uv2 = true
+heightmap_scale = 16.0
+subsurf_scatter_skin_mode = true
+refraction_scale = -0.18
+disable_receive_shadows = true
+billboard_keep_scale = true
 
 [sub_resource type="SphereMesh" id="SphereMesh_jqp67"]
 material = SubResource("StandardMaterial3D_q62pv")
@@ -82,10 +112,10 @@ albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_x0udv"]
 material = SubResource("StandardMaterial3D_oms5w")
-size = Vector3(0.8, 0.4, 0.6)
+size = Vector3(0.6, 0.4, 0.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fmjco"]
-size = Vector3(0.8, 0.4, 0.6)
+size = Vector3(0.6, 0.4, 0.8)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ic4f8"]
 albedo_color = Color(0.2, 0.2, 0.2, 1)
@@ -95,7 +125,7 @@ material = SubResource("StandardMaterial3D_ic4f8")
 size = Vector3(1, 0.5, 0.3)
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5eeym"]
-points = PackedVector3Array(0.5, 0, 0.15, 0.5, 0, -0.15, -0.5, 0, -0.15, -0.5, 0, 0.15, 0, 0.5, 0.15, 0, 0.5, -0.15)
+points = PackedVector3Array(0.15, 0, 0.5, -0.15, 0, 0.5, -0.15, 0, -0.5, 0.15, 0, -0.5, 0.15, 0.5, 0, -0.15, 0.5, 0)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ksqdn"]
 albedo_color = Color(0.2, 0.2, 0.2, 1)
@@ -104,7 +134,26 @@ albedo_color = Color(0.2, 0.2, 0.2, 1)
 material = SubResource("StandardMaterial3D_ksqdn")
 size = Vector3(1, 0.5, 0.3)
 
+[sub_resource type="BoxMesh" id="BoxMesh_igq2k"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_101qm"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_afe25"]
+
+[sub_resource type="Sky" id="Sky_de5u3"]
+sky_material = SubResource("ProceduralSkyMaterial_afe25")
+
+[sub_resource type="Environment" id="Environment_ctr6j"]
+background_mode = 2
+sky = SubResource("Sky_de5u3")
+ssao_enabled = true
+
 [node name="World" type="Node3D"]
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 4)
+top_level = true
+script = SubResource("GDScript_ovjqu")
 
 [node name="Ground" type="StaticBody3D" parent="."]
 
@@ -116,11 +165,9 @@ mesh = SubResource("PlaneMesh_imroj")
 skeleton = NodePath("../..")
 
 [node name="Player" type="CharacterBody3D" parent="."]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 script = SubResource("GDScript_o4868")
-
-[node name="Camera" type="Camera3D" parent="Player"]
-transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 4)
 
 [node name="BodyShape" type="CollisionShape3D" parent="Player"]
 shape = SubResource("CapsuleShape3D_l2giu")
@@ -132,18 +179,40 @@ mesh = SubResource("CapsuleMesh_6o8mj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="HeadMesh" type="MeshInstance3D" parent="Player/Head"]
+gi_mode = 0
 mesh = SubResource("CylinderMesh_klw4w")
 
 [node name="HeadShape" type="CollisionShape3D" parent="Player/Head"]
 shape = SubResource("CylinderShape3D_bgrpi")
 
 [node name="LeftEye" type="MeshInstance3D" parent="Player/Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0, 0.12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0, -0.3)
+cast_shadow = 0
+gi_mode = 0
 mesh = SubResource("SphereMesh_jqp67")
 
+[node name="Light" type="OmniLight3D" parent="Player/Head/LeftEye"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0, -0.07)
+light_color = Color(1, 1, 0, 1)
+light_indirect_energy = 0.0
+shadow_enabled = true
+shadow_blur = 10.0
+omni_range = 10.0
+omni_attenuation = 1e-05
+
 [node name="RightEye" type="MeshInstance3D" parent="Player/Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0, -0.12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0, -0.3)
+cast_shadow = 0
+gi_mode = 0
 mesh = SubResource("SphereMesh_jqp67")
+
+[node name="Light" type="OmniLight3D" parent="Player/Head/RightEye"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0, -0.07)
+light_color = Color(1, 1, 0, 1)
+shadow_enabled = true
+shadow_blur = 10.0
+omni_range = 10.0
+omni_attenuation = 1e-05
 
 [node name="Locomotor" type="Area3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
@@ -157,9 +226,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 shape = SubResource("BoxShape3D_fmjco")
 
 [node name="Left" type="Area3D" parent="Player/Locomotor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0, 0)
 
 [node name="LeftMesh" type="MeshInstance3D" parent="Player/Locomotor/Left"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
 mesh = SubResource("PrismMesh_velih")
 skeleton = NodePath("../../..")
 
@@ -168,12 +238,29 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("ConvexPolygonShape3D_5eeym")
 
 [node name="Right" type="Area3D" parent="Player/Locomotor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0, 0)
 
 [node name="RightMesh" type="MeshInstance3D" parent="Player/Locomotor/Right"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
 mesh = SubResource("PrismMesh_trt7l")
 skeleton = NodePath("../..")
 
 [node name="RightShape" type="CollisionShape3D" parent="Player/Locomotor/Right"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("ConvexPolygonShape3D_5eeym")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.5, 2)
+mesh = SubResource("BoxMesh_igq2k")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1, -2)
+mesh = SubResource("CylinderMesh_101qm")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ctr6j")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+visible = false
+shadow_enabled = true
