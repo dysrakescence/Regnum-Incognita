@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://cufu55cw77ykl"]
+[gd_scene load_steps=29 format=3 uid="uid://cufu55cw77ykl"]
 
 [sub_resource type="GDScript" id="GDScript_ovjqu"]
 resource_name = "camera"
@@ -31,34 +31,36 @@ script/source = "extends CharacterBody3D
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(\"physics/3d/default_gravity\")
 
-const MAX_MOVE_SPEED = 5
-const MAX_ROTATE_SPEED = .05
+const MAX_MOVE_SPEED := 2
+const MAX_ROTATE_SPEED := 1.0/32
 
-var move_speed = 0
-var rotate_speed = 0
-var movement = 0
-var rotate = 0
-var direction = Vector2.ZERO
+var move_speed := 0.0
+var rotate_speed := 0.0
+var movement : float
+var rotating : float
+var direction := Vector2.ZERO
 
 func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 #get input
 	movement = Input.get_axis(\"player_up\", \"player_down\")
-	rotate = Input.get_axis(\"player_right\", \"player_left\")
+	rotating = Input.get_axis(\"player_right\", \"player_left\")
 #movement
 	if abs(move_speed) < MAX_MOVE_SPEED:
-		move_speed += movement * delta * 40
+		move_speed += movement * delta * 4
 	direction = Vector2.from_angle(rotation.y)
 	velocity.x = move_speed * direction.y
 	velocity.z = move_speed * direction.x
 #rotation
 	if abs(rotate_speed) < MAX_ROTATE_SPEED:
-		rotate_speed += rotate * delta / 5
+		rotate_speed += rotating * delta / 16
 	rotation.y += rotate_speed
-#resistence
-	move_speed = move_toward(move_speed, 0, delta * 25)
-	rotate_speed = move_toward(rotate_speed, 0, delta / 8)
+#friction
+	if movement * move_speed <= 0:
+		move_speed = move_toward(move_speed, 0, delta * 8)
+	if rotating * rotate_speed <= 0:
+		rotate_speed = move_toward(rotate_speed, 0, delta / 16)
 
 	move_and_slide()
 "
@@ -88,22 +90,14 @@ height = 0.6
 height = 0.6
 radius = 0.4
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q62pv"]
-diffuse_mode = 3
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bi1sg"]
 albedo_color = Color(0.996078, 0.862745, 0, 1)
-emission_energy_multiplier = 11.33
-clearcoat_roughness = 1.0
-anisotropy = -0.95
-ao_light_affect = 1.0
-ao_on_uv2 = true
-heightmap_scale = 16.0
-subsurf_scatter_skin_mode = true
-refraction_scale = -0.18
-disable_receive_shadows = true
-billboard_keep_scale = true
+emission_enabled = true
+emission = Color(1, 1, 0, 1)
+emission_energy_multiplier = 0.8
 
 [sub_resource type="SphereMesh" id="SphereMesh_jqp67"]
-material = SubResource("StandardMaterial3D_q62pv")
+material = SubResource("StandardMaterial3D_bi1sg")
 radius = 0.08
 height = 0.16
 
@@ -138,15 +132,64 @@ size = Vector3(1, 0.5, 0.3)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_101qm"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_afe25"]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wvxqc"]
 
 [sub_resource type="Sky" id="Sky_de5u3"]
-sky_material = SubResource("ProceduralSkyMaterial_afe25")
+sky_material = SubResource("ProceduralSkyMaterial_wvxqc")
+process_mode = 2
 
 [sub_resource type="Environment" id="Environment_ctr6j"]
 background_mode = 2
 sky = SubResource("Sky_de5u3")
 ssao_enabled = true
+
+[sub_resource type="GDScript" id="GDScript_lnn6r"]
+resource_name = "sunlight"
+script/source = "extends DirectionalLight3D
+
+var env : WorldEnvironment
+var active := true
+var time := 900.0
+
+func _ready():
+	env = %WorldEnvironment
+	#rotation_degrees.x = 270
+
+func _process(delta):
+	rotation_degrees.x += delta / 10
+	time += delta
+	if time >= 1800:
+		time -= 1800
+		active = !active
+	if active:
+		light_energy = lerp(light_energy, 1.0, delta/30)
+	else:
+		light_energy = lerp(light_energy, 0.0, delta/30)
+	env.environment.background_energy_multiplier = light_energy
+"
+
+[sub_resource type="GDScript" id="GDScript_uchd0"]
+resource_name = "moonlight"
+script/source = "extends DirectionalLight3D
+
+var active := false
+var time := 0.0
+
+func _ready():
+	pass
+	#rotation_degrees.x = 270
+
+func _process(delta):
+	rotation_degrees.x += delta / 12
+	time += delta
+	if time >= 2160:
+		time -= 2160
+		active = !active
+	if active:
+		light_energy = lerp(light_energy, 0.1, delta/36)
+	else:
+		light_energy = lerp(light_energy, 0.0, delta/36)
+"
 
 [node name="World" type="Node3D"]
 
@@ -179,6 +222,7 @@ mesh = SubResource("CapsuleMesh_6o8mj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="HeadMesh" type="MeshInstance3D" parent="Player/Head"]
+cast_shadow = 2
 gi_mode = 0
 mesh = SubResource("CylinderMesh_klw4w")
 
@@ -187,27 +231,23 @@ shape = SubResource("CylinderShape3D_bgrpi")
 
 [node name="LeftEye" type="MeshInstance3D" parent="Player/Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0, -0.3)
-cast_shadow = 0
-gi_mode = 0
 mesh = SubResource("SphereMesh_jqp67")
 
 [node name="Light" type="OmniLight3D" parent="Player/Head/LeftEye"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0, -0.07)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03, 0, -0.07)
 light_color = Color(1, 1, 0, 1)
-light_indirect_energy = 0.0
 shadow_enabled = true
+shadow_transmittance_bias = -5.045
 shadow_blur = 10.0
 omni_range = 10.0
 omni_attenuation = 1e-05
 
 [node name="RightEye" type="MeshInstance3D" parent="Player/Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0, -0.3)
-cast_shadow = 0
-gi_mode = 0
 mesh = SubResource("SphereMesh_jqp67")
 
 [node name="Light" type="OmniLight3D" parent="Player/Head/RightEye"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0, -0.07)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.03, 0, -0.07)
 light_color = Color(1, 1, 0, 1)
 shadow_enabled = true
 shadow_blur = 10.0
@@ -258,9 +298,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1, -2)
 mesh = SubResource("CylinderMesh_101qm")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+unique_name_in_owner = true
 environment = SubResource("Environment_ctr6j")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
-visible = false
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0)
+light_color = Color(1, 1, 0.8, 1)
 shadow_enabled = true
+script = SubResource("GDScript_lnn6r")
+
+[node name="Moon" type="DirectionalLight3D" parent="."]
+light_color = Color(0.866667, 0.933333, 1, 1)
+light_energy = 0.1
+script = SubResource("GDScript_uchd0")
