@@ -1,216 +1,5 @@
 [gd_scene load_steps=50 format=3 uid="uid://cufu55cw77ykl"]
 
-[sub_resource type="GDScript" id="GDScript_ovjqu"]
-resource_name = "camera"
-script/source = "extends Camera3D
-
-var target : Node3D
-
-func _ready():
-	target = %Player
-
-func _process(delta):
-	position.x = lerp(position.x, target.position.x, delta*5)
-	position.y = lerp(position.y, target.position.y + 6, delta*5)
-	position.z = lerp(position.z, target.position.z + 4, delta*5)
-"
-
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_am0xg"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3v2y3"]
-albedo_color = Color(0.12549, 0.376471, 0.0627451, 1)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_imroj"]
-material = SubResource("StandardMaterial3D_3v2y3")
-size = Vector2(16, 16)
-
-[sub_resource type="GDScript" id="GDScript_o4868"]
-resource_name = "player"
-script/source = "extends CharacterBody3D
-
-# Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = ProjectSettings.get_setting(\"physics/3d/default_gravity\")
-
-const MAX_MOVE_SPEED := 2
-const MAX_ROTATE_SPEED := 1.0/32
-
-var move_speed := 0.0
-var rotate_speed := 0.0
-var movement : float
-var rotating : float
-var direction := Vector2.ZERO
-
-func _physics_process(delta):
-	if not is_on_floor():
-		velocity.y -= gravity * delta
-#get input
-	movement = Input.get_axis(\"player_up\", \"player_down\")
-	rotating = Input.get_axis(\"player_right\", \"player_left\")
-#movement
-	if abs(move_speed) < MAX_MOVE_SPEED:
-		move_speed += movement * delta * 4
-	direction = Vector2.from_angle(rotation.y)
-	velocity.x = move_speed * direction.y
-	velocity.z = move_speed * direction.x
-#rotation
-	if abs(rotate_speed) < MAX_ROTATE_SPEED:
-		rotate_speed += rotating * delta / 16
-	rotation.y += rotate_speed
-#friction
-	if movement * move_speed <= 0:
-		move_speed = move_toward(move_speed, 0, delta * 8)
-	if rotating * rotate_speed <= 0:
-		rotate_speed = move_toward(rotate_speed, 0, delta / 16)
-
-	move_and_slide()
-"
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_l2giu"]
-radius = 0.3
-height = 1.5
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i1fiq"]
-albedo_color = Color(0.533333, 0.533333, 0.533333, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_6o8mj"]
-material = SubResource("StandardMaterial3D_i1fiq")
-radius = 0.3
-height = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3hgms"]
-albedo_color = Color(0.670588, 0.803922, 0.937255, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_klw4w"]
-material = SubResource("StandardMaterial3D_3hgms")
-top_radius = 0.3
-bottom_radius = 0.4
-height = 0.6
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_bgrpi"]
-height = 0.6
-radius = 0.4
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bi1sg"]
-albedo_color = Color(0.996078, 0.862745, 0, 1)
-emission_enabled = true
-emission = Color(1, 1, 0, 1)
-emission_energy_multiplier = 0.8
-
-[sub_resource type="SphereMesh" id="SphereMesh_jqp67"]
-material = SubResource("StandardMaterial3D_bi1sg")
-radius = 0.08
-height = 0.16
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oms5w"]
-albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_x0udv"]
-material = SubResource("StandardMaterial3D_oms5w")
-size = Vector3(0.6, 0.4, 0.8)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_fmjco"]
-size = Vector3(0.6, 0.4, 0.8)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ic4f8"]
-albedo_color = Color(0.2, 0.2, 0.2, 1)
-
-[sub_resource type="PrismMesh" id="PrismMesh_velih"]
-material = SubResource("StandardMaterial3D_ic4f8")
-size = Vector3(1, 0.5, 0.3)
-
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5eeym"]
-points = PackedVector3Array(0.15, 0, 0.5, -0.15, 0, 0.5, -0.15, 0, -0.5, 0.15, 0, -0.5, 0.15, 0.5, 0, -0.15, 0.5, 0)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ksqdn"]
-albedo_color = Color(0.2, 0.2, 0.2, 1)
-
-[sub_resource type="PrismMesh" id="PrismMesh_trt7l"]
-material = SubResource("StandardMaterial3D_ksqdn")
-size = Vector3(1, 0.5, 0.3)
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_xjy0f"]
-radius = 0.1
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crs8i"]
-albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_1wbx0"]
-material = SubResource("StandardMaterial3D_crs8i")
-radius = 0.1
-height = 0.2
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_j2eju"]
-height = 0.4
-radius = 0.05
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3tfd6"]
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_77u65"]
-material = SubResource("StandardMaterial3D_3tfd6")
-top_radius = 0.05
-bottom_radius = 0.05
-height = 0.4
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_vw7g2"]
-radius = 0.1
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_44n1c"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_2th7o"]
-material = SubResource("StandardMaterial3D_44n1c")
-radius = 0.1
-height = 0.2
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_5iu7i"]
-height = 0.4
-radius = 0.05
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ux20r"]
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_jg11a"]
-material = SubResource("StandardMaterial3D_ux20r")
-top_radius = 0.05
-bottom_radius = 0.05
-height = 0.4
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_iqj6b"]
-radius = 0.08
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sbv3e"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_4elte"]
-material = SubResource("StandardMaterial3D_sbv3e")
-radius = 0.08
-height = 0.08
-is_hemisphere = true
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_3wkdb"]
-height = 0.16
-radius = 0.03
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sio5l"]
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_l2ga7"]
-material = SubResource("StandardMaterial3D_sio5l")
-top_radius = 0.03
-bottom_radius = 0.03
-height = 0.16
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mlxtn"]
-radius = 0.03
-height = 0.16
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d28ts"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_hnsal"]
-material = SubResource("StandardMaterial3D_d28ts")
-radius = 0.03
-height = 0.16
-
-[sub_resource type="BoxMesh" id="BoxMesh_igq2k"]
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_101qm"]
-
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wvxqc"]
 
 [sub_resource type="Sky" id="Sky_de5u3"]
@@ -270,7 +59,251 @@ func _process(delta):
 		light_energy = lerp(light_energy, 0.0, delta/36)
 "
 
+[sub_resource type="GDScript" id="GDScript_ovjqu"]
+resource_name = "camera"
+script/source = "extends Camera3D
+
+var target : Node3D
+
+func _ready():
+	target = %Player
+
+func _process(delta):
+	position.x = lerp(position.x, target.position.x, delta*5)
+	position.y = lerp(position.y, target.position.y + 6, delta*5)
+	position.z = lerp(position.z, target.position.z + 4, delta*5)
+"
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_am0xg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3v2y3"]
+albedo_color = Color(0.12549, 0.376471, 0.0627451, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_imroj"]
+material = SubResource("StandardMaterial3D_3v2y3")
+size = Vector2(16, 16)
+
+[sub_resource type="GDScript" id="GDScript_o4868"]
+resource_name = "player"
+script/source = "extends CharacterBody3D
+
+# Get the gravity from the project settings to be synced with RigidBody nodes.
+var gravity = ProjectSettings.get_setting(\"physics/3d/default_gravity\")
+
+const MAX_MOVE_SPEED := 2
+const MAX_ROTATE_SPEED := 1.0/32
+
+var lights : Array
+var lights_toggle := false
+
+var move_speed := 0.0
+var rotate_speed := 0.0
+var movement : float
+var rotating : float
+var direction := Vector2.ZERO
+
+func _ready():
+	lights = [$Head/LeftEye, $Head/RightEye]
+
+func _physics_process(delta):
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+#get input
+	movement = Input.get_axis(\"player_up\", \"player_down\")
+	rotating = Input.get_axis(\"player_right\", \"player_left\")
+	if Input.is_action_just_pressed(\"player_light\"):
+		lights_toggle = !lights_toggle
+		for light in lights:
+			light.get_active_material(0).emission_enabled = lights_toggle
+			light.get_child(0).visible = lights_toggle
+#movement
+	if abs(move_speed) < MAX_MOVE_SPEED:
+		move_speed += movement * delta * 4
+	direction = Vector2.from_angle(rotation.y)
+	velocity.x = move_speed * direction.y
+	velocity.z = move_speed * direction.x
+#rotation
+	if abs(rotate_speed) < MAX_ROTATE_SPEED:
+		rotate_speed += rotating * delta / 16
+	rotation.y += rotate_speed
+#friction
+	if movement * move_speed <= 0:
+		move_speed = move_toward(move_speed, 0, delta * 8)
+	if rotating * rotate_speed <= 0:
+		rotate_speed = move_toward(rotate_speed, 0, delta / 16)
+
+	move_and_slide()
+"
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_l2giu"]
+radius = 0.3
+height = 1.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i1fiq"]
+albedo_color = Color(0.533333, 0.533333, 0.533333, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6o8mj"]
+material = SubResource("StandardMaterial3D_i1fiq")
+radius = 0.3
+height = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3hgms"]
+albedo_color = Color(0.670588, 0.803922, 0.937255, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_klw4w"]
+material = SubResource("StandardMaterial3D_3hgms")
+top_radius = 0.3
+bottom_radius = 0.4
+height = 0.6
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_bgrpi"]
+height = 0.6
+radius = 0.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bi1sg"]
+albedo_color = Color(0.996078, 0.862745, 0, 1)
+emission = Color(1, 1, 0, 1)
+emission_energy_multiplier = 0.8
+refraction_scale = 1.0
+detail_blend_mode = 3
+
+[sub_resource type="SphereMesh" id="SphereMesh_jqp67"]
+material = SubResource("StandardMaterial3D_bi1sg")
+radius = 0.08
+height = 0.16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oms5w"]
+albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_x0udv"]
+material = SubResource("StandardMaterial3D_oms5w")
+size = Vector3(0.6, 0.4, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fmjco"]
+size = Vector3(0.6, 0.4, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ic4f8"]
+albedo_color = Color(0.2, 0.2, 0.2, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_velih"]
+material = SubResource("StandardMaterial3D_ic4f8")
+size = Vector3(1, 0.5, 0.3)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5eeym"]
+points = PackedVector3Array(0.15, 0, 0.5, -0.15, 0, 0.5, -0.15, 0, -0.5, 0.15, 0, -0.5, 0.15, 0.5, 0, -0.15, 0.5, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ksqdn"]
+albedo_color = Color(0.2, 0.2, 0.2, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_trt7l"]
+material = SubResource("StandardMaterial3D_ksqdn")
+size = Vector3(1, 0.5, 0.3)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_xjy0f"]
+radius = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crs8i"]
+albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_1wbx0"]
+material = SubResource("StandardMaterial3D_crs8i")
+radius = 0.1
+height = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_j2eju"]
+height = 0.4
+radius = 0.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3tfd6"]
+albedo_color = Color(0.670588, 0.803922, 0.937255, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_77u65"]
+material = SubResource("StandardMaterial3D_3tfd6")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.4
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_vw7g2"]
+radius = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_44n1c"]
+albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_2th7o"]
+material = SubResource("StandardMaterial3D_44n1c")
+radius = 0.1
+height = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_5iu7i"]
+height = 0.4
+radius = 0.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ux20r"]
+albedo_color = Color(0.670588, 0.803922, 0.937255, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jg11a"]
+material = SubResource("StandardMaterial3D_ux20r")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.4
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_iqj6b"]
+radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sbv3e"]
+albedo_color = Color(0.396078, 0.262745, 0.129412, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_4elte"]
+material = SubResource("StandardMaterial3D_sbv3e")
+radius = 0.08
+height = 0.08
+is_hemisphere = true
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_3wkdb"]
+height = 0.16
+radius = 0.03
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sio5l"]
+albedo_color = Color(0.996078, 0.862745, 0.729412, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_l2ga7"]
+material = SubResource("StandardMaterial3D_sio5l")
+top_radius = 0.03
+bottom_radius = 0.03
+height = 0.16
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mlxtn"]
+radius = 0.03
+height = 0.16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d28ts"]
+albedo_color = Color(0.996078, 0.862745, 0.729412, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_hnsal"]
+material = SubResource("StandardMaterial3D_d28ts")
+radius = 0.03
+height = 0.16
+
+[sub_resource type="BoxMesh" id="BoxMesh_igq2k"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_101qm"]
+
 [node name="World" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+unique_name_in_owner = true
+environment = SubResource("Environment_ctr6j")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0)
+light_color = Color(1, 1, 0.8, 1)
+shadow_enabled = true
+script = SubResource("GDScript_lnn6r")
+
+[node name="Moon" type="DirectionalLight3D" parent="."]
+light_color = Color(0.866667, 0.933333, 1, 1)
+light_energy = 0.1
+script = SubResource("GDScript_uchd0")
 
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 4)
@@ -314,6 +347,7 @@ mesh = SubResource("SphereMesh_jqp67")
 
 [node name="Light" type="OmniLight3D" parent="Player/Head/LeftEye"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03, 0, -0.07)
+visible = false
 light_color = Color(1, 1, 0, 1)
 shadow_enabled = true
 shadow_transmittance_bias = -5.045
@@ -327,6 +361,7 @@ mesh = SubResource("SphereMesh_jqp67")
 
 [node name="Light" type="OmniLight3D" parent="Player/Head/RightEye"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.03, 0, -0.07)
+visible = false
 light_color = Color(1, 1, 0, 1)
 shadow_enabled = true
 shadow_blur = 10.0
@@ -449,25 +484,91 @@ shape = SubResource("CapsuleShape3D_mlxtn")
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
 mesh = SubResource("CapsuleMesh_hnsal")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="RightArm" type="Area3D" parent="Player"]
+transform = Transform3D(-0.5, 0.866025, 0, -0.75, -0.433013, 0.5, 0.433013, 0.25, 0.866025, 0.3, 0, 0)
+
+[node name="JointShape" type="CollisionShape3D" parent="Player/RightArm"]
+shape = SubResource("SphereShape3D_xjy0f")
+
+[node name="JointMesh" type="MeshInstance3D" parent="Player/RightArm"]
+mesh = SubResource("SphereMesh_1wbx0")
+
+[node name="ArmShape" type="CollisionShape3D" parent="Player/RightArm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+shape = SubResource("CylinderShape3D_j2eju")
+
+[node name="ArmMesh" type="MeshInstance3D" parent="Player/RightArm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+mesh = SubResource("CylinderMesh_77u65")
+
+[node name="Forearm" type="Area3D" parent="Player/RightArm"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.4, 0)
+
+[node name="JointShape" type="CollisionShape3D" parent="Player/RightArm/Forearm"]
+shape = SubResource("SphereShape3D_vw7g2")
+
+[node name="JointMesh" type="MeshInstance3D" parent="Player/RightArm/Forearm"]
+mesh = SubResource("SphereMesh_2th7o")
+
+[node name="ForearmShape" type="CollisionShape3D" parent="Player/RightArm/Forearm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+shape = SubResource("CylinderShape3D_5iu7i")
+
+[node name="ForearmMesh" type="MeshInstance3D" parent="Player/RightArm/Forearm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+mesh = SubResource("CylinderMesh_jg11a")
+
+[node name="Hand" type="Area3D" parent="Player/RightArm/Forearm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+
+[node name="HandShape" type="CollisionShape3D" parent="Player/RightArm/Forearm/Hand"]
+shape = SubResource("SphereShape3D_iqj6b")
+
+[node name="HandMesh" type="MeshInstance3D" parent="Player/RightArm/Forearm/Hand"]
+mesh = SubResource("SphereMesh_4elte")
+
+[node name="TopGrabber" type="Area3D" parent="Player/RightArm/Forearm/Hand"]
+transform = Transform3D(0.5, 0.866025, 0, -0.866025, 0.5, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="GrabberShape" type="CollisionShape3D" parent="Player/RightArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(1, 0, -1.49012e-08, -2.98023e-08, 1, 0, -3.72529e-08, 2.98023e-08, 1, 0, 0.08, 0)
+shape = SubResource("CylinderShape3D_3wkdb")
+
+[node name="GrabberMesh" type="MeshInstance3D" parent="Player/RightArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+mesh = SubResource("CylinderMesh_l2ga7")
+
+[node name="TipShape" type="CollisionShape3D" parent="Player/RightArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+shape = SubResource("CapsuleShape3D_mlxtn")
+
+[node name="TipMesh" type="MeshInstance3D" parent="Player/RightArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+mesh = SubResource("CapsuleMesh_hnsal")
+
+[node name="BottomGrabber" type="Area3D" parent="Player/RightArm/Forearm/Hand"]
+transform = Transform3D(-0.5, -0.866025, -8.74228e-08, -0.866025, 0.5, 0, 4.37114e-08, 7.57103e-08, -1, 0, 0, 0)
+
+[node name="GrabberShape" type="CollisionShape3D" parent="Player/RightArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(1, 0, -1.49012e-08, -2.98023e-08, 1, 0, -3.72529e-08, 2.98023e-08, 1, 0, 0.08, 0)
+shape = SubResource("CylinderShape3D_3wkdb")
+
+[node name="GrabberMesh" type="MeshInstance3D" parent="Player/RightArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+mesh = SubResource("CylinderMesh_l2ga7")
+
+[node name="TipShape" type="CollisionShape3D" parent="Player/RightArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+shape = SubResource("CapsuleShape3D_mlxtn")
+
+[node name="TipMesh" type="MeshInstance3D" parent="Player/RightArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+mesh = SubResource("CapsuleMesh_hnsal")
+
+[node name="Box" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.5, 2)
 mesh = SubResource("BoxMesh_igq2k")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+[node name="Tree" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1, -2)
 mesh = SubResource("CylinderMesh_101qm")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-unique_name_in_owner = true
-environment = SubResource("Environment_ctr6j")
-
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0)
-light_color = Color(1, 1, 0.8, 1)
-shadow_enabled = true
-script = SubResource("GDScript_lnn6r")
-
-[node name="Moon" type="DirectionalLight3D" parent="."]
-light_color = Color(0.866667, 0.933333, 1, 1)
-light_energy = 0.1
-script = SubResource("GDScript_uchd0")
