@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://cufu55cw77ykl"]
+[gd_scene load_steps=50 format=3 uid="uid://cufu55cw77ykl"]
 
 [sub_resource type="GDScript" id="GDScript_ovjqu"]
 resource_name = "camera"
@@ -127,6 +127,85 @@ albedo_color = Color(0.2, 0.2, 0.2, 1)
 [sub_resource type="PrismMesh" id="PrismMesh_trt7l"]
 material = SubResource("StandardMaterial3D_ksqdn")
 size = Vector3(1, 0.5, 0.3)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_xjy0f"]
+radius = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crs8i"]
+albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_1wbx0"]
+material = SubResource("StandardMaterial3D_crs8i")
+radius = 0.1
+height = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_j2eju"]
+height = 0.4
+radius = 0.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3tfd6"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_77u65"]
+material = SubResource("StandardMaterial3D_3tfd6")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.4
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_vw7g2"]
+radius = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_44n1c"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_2th7o"]
+material = SubResource("StandardMaterial3D_44n1c")
+radius = 0.1
+height = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_5iu7i"]
+height = 0.4
+radius = 0.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ux20r"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jg11a"]
+material = SubResource("StandardMaterial3D_ux20r")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.4
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_iqj6b"]
+radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sbv3e"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_4elte"]
+material = SubResource("StandardMaterial3D_sbv3e")
+radius = 0.08
+height = 0.08
+is_hemisphere = true
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_3wkdb"]
+height = 0.16
+radius = 0.03
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sio5l"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_l2ga7"]
+material = SubResource("StandardMaterial3D_sio5l")
+top_radius = 0.03
+bottom_radius = 0.03
+height = 0.16
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mlxtn"]
+radius = 0.03
+height = 0.16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d28ts"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_hnsal"]
+material = SubResource("StandardMaterial3D_d28ts")
+radius = 0.03
+height = 0.16
 
 [sub_resource type="BoxMesh" id="BoxMesh_igq2k"]
 
@@ -288,6 +367,87 @@ skeleton = NodePath("../..")
 [node name="RightShape" type="CollisionShape3D" parent="Player/Locomotor/Right"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("ConvexPolygonShape3D_5eeym")
+
+[node name="LeftArm" type="Area3D" parent="Player"]
+transform = Transform3D(-0.5, -0.866025, 0, 0.75, -0.433013, 0.5, -0.433013, 0.25, 0.866025, -0.3, 0, 0)
+
+[node name="JointShape" type="CollisionShape3D" parent="Player/LeftArm"]
+shape = SubResource("SphereShape3D_xjy0f")
+
+[node name="JointMesh" type="MeshInstance3D" parent="Player/LeftArm"]
+mesh = SubResource("SphereMesh_1wbx0")
+
+[node name="ArmShape" type="CollisionShape3D" parent="Player/LeftArm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+shape = SubResource("CylinderShape3D_j2eju")
+
+[node name="ArmMesh" type="MeshInstance3D" parent="Player/LeftArm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+mesh = SubResource("CylinderMesh_77u65")
+
+[node name="Forearm" type="Area3D" parent="Player/LeftArm"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.4, 0)
+
+[node name="JointShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm"]
+shape = SubResource("SphereShape3D_vw7g2")
+
+[node name="JointMesh" type="MeshInstance3D" parent="Player/LeftArm/Forearm"]
+mesh = SubResource("SphereMesh_2th7o")
+
+[node name="ForearmShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+shape = SubResource("CylinderShape3D_5iu7i")
+
+[node name="ForearmMesh" type="MeshInstance3D" parent="Player/LeftArm/Forearm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+mesh = SubResource("CylinderMesh_jg11a")
+
+[node name="Hand" type="Area3D" parent="Player/LeftArm/Forearm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+
+[node name="HandShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm/Hand"]
+shape = SubResource("SphereShape3D_iqj6b")
+
+[node name="HandMesh" type="MeshInstance3D" parent="Player/LeftArm/Forearm/Hand"]
+mesh = SubResource("SphereMesh_4elte")
+
+[node name="TopGrabber" type="Area3D" parent="Player/LeftArm/Forearm/Hand"]
+transform = Transform3D(0.5, 0.866025, 0, -0.866025, 0.5, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="GrabberShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(1, 0, -1.49012e-08, -2.98023e-08, 1, 0, -3.72529e-08, 2.98023e-08, 1, 0, 0.08, 0)
+shape = SubResource("CylinderShape3D_3wkdb")
+
+[node name="GrabberMesh" type="MeshInstance3D" parent="Player/LeftArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+mesh = SubResource("CylinderMesh_l2ga7")
+
+[node name="TipShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+shape = SubResource("CapsuleShape3D_mlxtn")
+
+[node name="TipMesh" type="MeshInstance3D" parent="Player/LeftArm/Forearm/Hand/TopGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+mesh = SubResource("CapsuleMesh_hnsal")
+
+[node name="BottomGrabber" type="Area3D" parent="Player/LeftArm/Forearm/Hand"]
+transform = Transform3D(-0.5, -0.866025, -8.74228e-08, -0.866025, 0.5, 0, 4.37114e-08, 7.57103e-08, -1, 0, 0, 0)
+
+[node name="GrabberShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(1, 0, -1.49012e-08, -2.98023e-08, 1, 0, -3.72529e-08, 2.98023e-08, 1, 0, 0.08, 0)
+shape = SubResource("CylinderShape3D_3wkdb")
+
+[node name="GrabberMesh" type="MeshInstance3D" parent="Player/LeftArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+mesh = SubResource("CylinderMesh_l2ga7")
+
+[node name="TipShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+shape = SubResource("CapsuleShape3D_mlxtn")
+
+[node name="TipMesh" type="MeshInstance3D" parent="Player/LeftArm/Forearm/Hand/BottomGrabber"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05, 0.16, 0)
+mesh = SubResource("CapsuleMesh_hnsal")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.5, 2)
