@@ -59,19 +59,22 @@ func _process(delta):
 		light_energy = lerp(light_energy, 0.0, delta/36)
 "
 
-[sub_resource type="GDScript" id="GDScript_ovjqu"]
-resource_name = "camera"
-script/source = "extends Camera3D
+[sub_resource type="GDScript" id="GDScript_dpwde"]
+resource_name = "camera_anchor"
+script/source = "extends Node3D
 
 var target : Node3D
+var rotating : float
 
 func _ready():
 	target = %Player
 
 func _process(delta):
 	position.x = lerp(position.x, target.position.x, delta*5)
-	position.y = lerp(position.y, target.position.y + 6, delta*5)
-	position.z = lerp(position.z, target.position.z + 4, delta*5)
+	position.y = lerp(position.y, target.position.y, delta*5)
+	position.z = lerp(position.z, target.position.z, delta*5)
+	rotating = Input.get_axis(\"camera_right\", \"camera_left\")
+	rotation.y += rotating * delta
 "
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_am0xg"]
@@ -141,6 +144,8 @@ height = 1.5
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i1fiq"]
 albedo_color = Color(0.533333, 0.533333, 0.533333, 1)
+metallic = 0.8
+roughness = 0.4
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_6o8mj"]
 material = SubResource("StandardMaterial3D_i1fiq")
@@ -149,6 +154,8 @@ height = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3hgms"]
 albedo_color = Color(0.670588, 0.803922, 0.937255, 1)
+metallic = 0.8
+roughness = 0.4
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_klw4w"]
 material = SubResource("StandardMaterial3D_3hgms")
@@ -162,6 +169,8 @@ radius = 0.4
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bi1sg"]
 albedo_color = Color(0.996078, 0.862745, 0, 1)
+metallic = 0.2
+roughness = 0.5
 emission = Color(1, 1, 0, 1)
 emission_energy_multiplier = 0.8
 refraction_scale = 1.0
@@ -174,6 +183,8 @@ height = 0.16
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oms5w"]
 albedo_color = Color(0.0705882, 0.203922, 0.337255, 1)
+metallic = 0.8
+roughness = 0.4
 
 [sub_resource type="BoxMesh" id="BoxMesh_x0udv"]
 material = SubResource("StandardMaterial3D_oms5w")
@@ -216,6 +227,8 @@ radius = 0.05
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3tfd6"]
 albedo_color = Color(0.670588, 0.803922, 0.937255, 1)
+metallic = 0.8
+roughness = 0.4
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_77u65"]
 material = SubResource("StandardMaterial3D_3tfd6")
@@ -240,6 +253,8 @@ radius = 0.05
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ux20r"]
 albedo_color = Color(0.670588, 0.803922, 0.937255, 1)
+metallic = 0.8
+roughness = 0.4
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_jg11a"]
 material = SubResource("StandardMaterial3D_ux20r")
@@ -305,10 +320,12 @@ light_color = Color(0.866667, 0.933333, 1, 1)
 light_energy = 0.1
 script = SubResource("GDScript_uchd0")
 
-[node name="Camera" type="Camera3D" parent="."]
+[node name="CameraAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = SubResource("GDScript_dpwde")
+
+[node name="Camera" type="Camera3D" parent="CameraAnchor"]
 transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 4)
-top_level = true
-script = SubResource("GDScript_ovjqu")
 
 [node name="Ground" type="StaticBody3D" parent="."]
 
