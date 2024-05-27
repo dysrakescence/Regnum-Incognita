@@ -98,6 +98,8 @@ const MAX_ROTATE_SPEED := 1.0/32
 
 var lights : Array
 var lights_toggle := false
+var functions : Array
+var limb : Area3D
 
 var move_speed := 0.0
 var rotate_speed := 0.0
@@ -107,6 +109,7 @@ var direction := Vector2.ZERO
 
 func _ready():
 	lights = [$Head/LeftEye, $Head/RightEye]
+	functions = [$LeftArm, $RightArm]
 
 func _physics_process(delta):
 	if not is_on_floor():
@@ -114,6 +117,20 @@ func _physics_process(delta):
 #get input
 	movement = Input.get_axis(\"player_up\", \"player_down\")
 	rotating = Input.get_axis(\"player_right\", \"player_left\")
+	for i in functions.size():
+		if Input.is_action_just_pressed(\"player_function_\" + str(i+1)):
+			limb = functions[i]
+			while limb.get_meta(\"next_part\", false):
+				var default = limb.get_meta(\"default_rotation\", 0)
+				if default.is_equal_approx(Vector3i(limb.rotation_degrees)):
+					if limb == functions[i]:
+						limb.basis = Basis.looking_at(limb.position)
+						limb.rotation_degrees.x -= 90
+					else:
+						limb.rotation = Vector3.ZERO
+				else:
+					limb.rotation_degrees = default
+				limb = limb.get_node(limb.get_meta(\"next_part\", false))
 	if Input.is_action_just_pressed(\"player_light\"):
 		lights_toggle = !lights_toggle
 		for light in lights:
@@ -329,10 +346,10 @@ transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 4)
 
 [node name="Ground" type="StaticBody3D" parent="."]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+[node name="GroundShape" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("WorldBoundaryShape3D_am0xg")
 
-[node name="Grass" type="MeshInstance3D" parent="Ground"]
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("PlaneMesh_imroj")
 skeleton = NodePath("../..")
 
@@ -421,7 +438,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("ConvexPolygonShape3D_5eeym")
 
 [node name="LeftArm" type="Area3D" parent="Player"]
-transform = Transform3D(-0.5, -0.866025, 0, 0.75, -0.433013, 0.5, -0.433013, 0.25, 0.866025, -0.3, 0, 0)
+transform = Transform3D(-0.5, -0.866025, -2.34283e-07, 0.75, -0.433013, 0.5, -0.433013, 0.25, 0.866025, -0.3, 0, 0)
+metadata/next_part = NodePath("Forearm")
+metadata/default_rotation = Vector3(-30, 0, 120)
 
 [node name="JointShape" type="CollisionShape3D" parent="Player/LeftArm"]
 shape = SubResource("SphereShape3D_xjy0f")
@@ -439,6 +458,8 @@ mesh = SubResource("CylinderMesh_77u65")
 
 [node name="Forearm" type="Area3D" parent="Player/LeftArm"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.4, 0)
+metadata/next_part = NodePath("Hand")
+metadata/default_rotation = Vector3(-90, 0, 0)
 
 [node name="JointShape" type="CollisionShape3D" parent="Player/LeftArm/Forearm"]
 shape = SubResource("SphereShape3D_vw7g2")
@@ -502,7 +523,9 @@ transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.05,
 mesh = SubResource("CapsuleMesh_hnsal")
 
 [node name="RightArm" type="Area3D" parent="Player"]
-transform = Transform3D(-0.5, 0.866025, 0, -0.75, -0.433013, 0.5, 0.433013, 0.25, 0.866025, 0.3, 0, 0)
+transform = Transform3D(-0.5, 0.866025, 2.34283e-07, -0.75, -0.433013, 0.5, 0.433013, 0.25, 0.866025, 0.3, 0, 0)
+metadata/next_part = NodePath("Forearm")
+metadata/default_rotation = Vector3(-30, 0, -120)
 
 [node name="JointShape" type="CollisionShape3D" parent="Player/RightArm"]
 shape = SubResource("SphereShape3D_xjy0f")
@@ -520,6 +543,8 @@ mesh = SubResource("CylinderMesh_77u65")
 
 [node name="Forearm" type="Area3D" parent="Player/RightArm"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.4, 0)
+metadata/next_part = NodePath("Hand")
+metadata/default_rotation = Vector3(-90, 0, 0)
 
 [node name="JointShape" type="CollisionShape3D" parent="Player/RightArm/Forearm"]
 shape = SubResource("SphereShape3D_vw7g2")
