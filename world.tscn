@@ -99,7 +99,6 @@ const MAX_ROTATE_SPEED := 1.0/32
 var lights : Array
 var lights_toggle := false
 var tools : Array
-var limb : Area3D
 
 var move_speed := 0.0
 var rotate_speed := 0.0
@@ -117,20 +116,7 @@ func _physics_process(delta):
 #get input
 	movement = Input.get_axis(\"player_up\", \"player_down\")
 	rotating = Input.get_axis(\"player_right\", \"player_left\")
-	for i in tools.size():
-		if Input.is_action_just_pressed(\"player_function_\" + str(i+1)):
-			limb = tools[i]
-			while limb.get_meta(\"next_part\", false):
-				var default = limb.get_meta(\"default_rotation\", 0)
-				if default.is_equal_approx(Vector3i(limb.rotation_degrees)):
-					if limb == tools[i]:
-						limb.look_at(%Tree.position)
-						limb.rotation_degrees.x -= 90
-					else:
-						limb.rotation = Vector3.ZERO
-				else:
-					limb.rotation_degrees = default
-				limb = limb.get_node(limb.get_meta(\"next_part\", false))
+	handle_tools()
 	if Input.is_action_just_pressed(\"player_light\"):
 		lights_toggle = !lights_toggle
 		for light in lights:
@@ -153,6 +139,31 @@ func _physics_process(delta):
 		rotate_speed = move_toward(rotate_speed, 0, delta / 16)
 
 	move_and_slide()
+
+func handle_tools():
+	var limb : Area3D
+	var isIdle : bool
+	var default : Vector3
+	for i in tools.size():
+		limb = tools[i]
+		isIdle = limb.get_meta(\"idle\")
+		default = limb.get_meta(\"default_rotation\", Vector3.ZERO)
+		if Input.is_action_just_pressed(\"player_function_\" + str(i)):
+			limb.set_meta(\"idle\", !isIdle)
+		if isIdle:
+			limb.rotation_degrees = limb.rotation_degrees.lerp(default, .1)
+		else:
+			limb.look_at(%Tree.position)
+			limb.rotation_degrees.x -= 90
+		limb = limb.get_node(limb.get_meta(\"next_part\", false))
+		while limb.get_meta(\"next_part\", false):
+			default = limb.get_meta(\"default_rotation\", Vector3.ZERO)
+			if isIdle:
+				limb.rotation_degrees = limb.rotation_degrees.lerp(default, .1)
+			else:
+				limb.rotation = limb.rotation.lerp(Vector3.ZERO, .1)
+			limb = limb.get_node(limb.get_meta(\"next_part\", false))
+
 "
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_l2giu"]
@@ -441,6 +452,7 @@ shape = SubResource("ConvexPolygonShape3D_5eeym")
 transform = Transform3D(-0.5, -0.866025, -2.34283e-07, 0.75, -0.433013, 0.5, -0.433013, 0.25, 0.866025, -0.3, 0, 0)
 metadata/next_part = NodePath("Forearm")
 metadata/default_rotation = Vector3(-30, 0, 120)
+metadata/idle = true
 
 [node name="JointShape" type="CollisionShape3D" parent="Player/LeftArm"]
 shape = SubResource("SphereShape3D_xjy0f")
@@ -526,6 +538,7 @@ mesh = SubResource("CapsuleMesh_hnsal")
 transform = Transform3D(-0.5, 0.866025, 2.34283e-07, -0.75, -0.433013, 0.5, 0.433013, 0.25, 0.866025, 0.3, 0, 0)
 metadata/next_part = NodePath("Forearm")
 metadata/default_rotation = Vector3(-30, 0, -120)
+metadata/idle = true
 
 [node name="JointShape" type="CollisionShape3D" parent="Player/RightArm"]
 shape = SubResource("SphereShape3D_xjy0f")
