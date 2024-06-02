@@ -131,7 +131,7 @@ func _physics_process(delta):
 #rotation
 	if abs(rotate_speed) < MAX_ROTATE_SPEED:
 		rotate_speed += rotating * delta / 16
-	rotation.y += rotate_speed
+	rotate_y(rotate_speed)
 #friction
 	if movement * move_speed <= 0:
 		move_speed = move_toward(move_speed, 0, delta * 8)
@@ -153,8 +153,10 @@ func handle_tools():
 		if isIdle:
 			limb.rotation_degrees = limb.rotation_degrees.lerp(default, .1)
 		else:
+			default = limb.rotation
 			limb.look_at(%Tree.position)
 			limb.rotation_degrees.x -= 90
+			limb.rotation = default.lerp(limb.rotation, .1)
 		limb = limb.get_node(limb.get_meta(\"next_part\", false))
 		while limb.get_meta(\"next_part\", false):
 			default = limb.get_meta(\"default_rotation\", Vector3.ZERO)
